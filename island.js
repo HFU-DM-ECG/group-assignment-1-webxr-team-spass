@@ -14,11 +14,6 @@ const camera = new THREE.PerspectiveCamera(FOV, window.innerWidth / window.inner
 // time
 var time = Date.now() / 1000;
 
-// background
-const backgroundLoader = new THREE.TextureLoader();
-backgroundLoader.load('https://images.pexels.com/photos/281260/pexels-photo-281260.jpeg', function (texture) {
-    scene.background = texture;
-});
 
 // light
 /// light from the sky
