@@ -1,6 +1,7 @@
 import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import {ARButton} from './ARButton.js';
+import { ARButton } from './ARButton.js';
 
 // camera configuration
 const FOV = 75;
@@ -9,9 +10,11 @@ const far_plane = 1000;
 
 // scene
 const scene = new THREE.Scene();
-scene.position.z = -3;
-scene.scale.divideScalar(3);
 const camera = new THREE.PerspectiveCamera(FOV, window.innerWidth / window.innerHeight, near_plane, far_plane);
+const collection = new THREE.Object3D();
+scene.add(collection);
+collection.position.z = -3;
+collection.scale.divideScalar(3);
 
 // time
 var time = Date.now() / 1000;
@@ -55,49 +58,60 @@ const airship = new THREE.Object3D();
 const loader = new GLTFLoader();
 
 var flightMode = false;
+let controls;
 
-// loading in the 3D models, saving them into usable variables and adding them to the scene.
-loader.load('models/insel.glb', function (gltf) {
-    // its always children[0] because the child gets removed from gltf.scene once you add it to the actual scene
-    island1.add(gltf.scene.children[0]); 
-    island1.children[0].children[0].castShadow = true;
-    island1.children[0].children[0].receiveShadow = true;
-    island1.name = "island1";
-    scene.add(island1);
+init();
 
-    island2.add(gltf.scene.children[0]);
-    island2.children[0].children[0].castShadow = true;
-    island2.children[0].children[0].receiveShadow = true;
-    island2.name = "island2";
-    scene.add(island2);
+function init() {
 
-    island3.add(gltf.scene.children[0]);
-    island3.children[0].children[0].castShadow = true;
-    island3.children[0].children[0].receiveShadow = true;
-    island3.name = "island3";
-    scene.add(island3);
-    island1.scale.set(3, 3, 3);
-    island2.scale.set(3, 3, 3);
-    island3.scale.set(3, 3, 3);
+    controls = new OrbitControls( camera, dom );
+    controls.target.set( 0, 1.6, 0 );
+    controls.update();
 
-}, undefined, function (error) {
-    console.error(error);
-});
+    // loading in the 3D models, saving them into usable variables and adding them to the scene.
+    loader.load('models/insel.glb', function (gltf) {
+        // its always children[0] because the child gets removed from gltf.scene once you add it to the actual scene
+        island1.add(gltf.scene.children[0]);
+        island1.children[0].children[0].castShadow = true;
+        island1.children[0].children[0].receiveShadow = true;
+        island1.name = "island1";
+        collection.add(island1);
 
-loader.load('models/airship.glb', function (gltf) {
-    airship.add(gltf.scene.children[0]);
-    airship.name = "airship";
-    airship.children[0].children[0].castShadow = true;
-    airship.children[0].children[0].receiveShadow = true;
-    scene.add(airship);
-    airship.scale.set(2, 2, 2);
-    airship.rotateY(-1.49);
-}, undefined, function (error) {
-    console.error(error);
-});
+        island2.add(gltf.scene.children[0]);
+        island2.children[0].children[0].castShadow = true;
+        island2.children[0].children[0].receiveShadow = true;
+        island2.name = "island2";
+        collection.add(island2);
+
+        island3.add(gltf.scene.children[0]);
+        island3.children[0].children[0].castShadow = true;
+        island3.children[0].children[0].receiveShadow = true;
+        island3.name = "island3";
+        collection.add(island3);
+        island1.scale.set(3, 3, 3);
+        island2.scale.set(3, 3, 3);
+        island3.scale.set(3, 3, 3);
+
+    }, undefined, function (error) {
+        console.error(error);
+    });
+
+    loader.load('models/airship.glb', function (gltf) {
+        airship.add(gltf.scene.children[0]);
+        airship.name = "airship";
+        airship.children[0].children[0].castShadow = true;
+        airship.children[0].children[0].receiveShadow = true;
+        collection.add(airship);
+        airship.scale.set(2, 2, 2);
+        airship.rotateY(-1.49);
+    }, undefined, function (error) {
+        console.error(error);
+    });
+}
+
 
 // object floating up and down
-function floating(object, floatingFrequency, amplitude, currentTime) { 
+function floating(object, floatingFrequency, amplitude, currentTime) {
     const scalingFactor = 1 / 1000;
     var midPosition = object.position.y;
     object.position.y = midPosition + (Math.sin(currentTime * floatingFrequency) * scalingFactor * amplitude);
@@ -123,7 +137,7 @@ function sunCycle(object, floatingFrequency, amplitude, currentTime) {
 // flying around with an object tied to the camera
 function fly(object) {
     // offset relative to camera
-    const offsetVector = new THREE.Vector3(-0.25, -1.3, -0.25); 
+    const offsetVector = new THREE.Vector3(-0.25, -1.3, -0.25);
     offsetVector.applyQuaternion(camera.quaternion);
     object.position.x = camera.position.x + offsetVector.x;
     object.position.y = camera.position.y + offsetVector.y;
@@ -133,7 +147,7 @@ function fly(object) {
 }
 
 // objectswitching between flying in circles and staying at one position for equal times
-function flyLoop(object, midPosition, currentTime, timescale, x_amp, y_amp, z_amp) { 
+function flyLoop(object, midPosition, currentTime, timescale, x_amp, y_amp, z_amp) {
     if (Math.sin(currentTime * timescale / 2) > 0) {
         const oldPosition = new THREE.Vector3(object.position.x, object.position.y, object.position.z);
 
@@ -152,7 +166,7 @@ function flyLoop(object, midPosition, currentTime, timescale, x_amp, y_amp, z_am
 function animate() {
     // time management
     /// scaling to seconds
-    const currentTime = Date.now() / 1000; 
+    const currentTime = Date.now() / 1000;
     time = currentTime;
 
     // animation: islands floating up and down in different intervals
@@ -183,7 +197,7 @@ function animate() {
     renderer.outputEncoding = THREE.sRGBEncoding;
     renderer.shadowMap.enabled = true;
 }
-renderer.setAnimationLoop( function () {
+renderer.setAnimationLoop(function () {
     renderer.render(scene, camera);
 })
 
