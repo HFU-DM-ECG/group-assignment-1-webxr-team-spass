@@ -13,6 +13,7 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(FOV, window.innerWidth / window.innerHeight, near_plane, far_plane);
 const collection = new THREE.Object3D();
 scene.add(collection);
+scene.background = new THREE.Color(0x222222);
 collection.position.z = -3;
 collection.scale.divideScalar(3);
 
@@ -64,8 +65,8 @@ init();
 
 function init() {
 
-    controls = new OrbitControls( camera, dom );
-    controls.target.set( 0, 1.6, 0 );
+    controls = new OrbitControls(camera, dom);
+    controls.target.set(0, 1.6, 0);
     controls.update();
 
     // loading in the 3D models, saving them into usable variables and adding them to the scene.
@@ -164,42 +165,43 @@ function flyLoop(object, midPosition, currentTime, timescale, x_amp, y_amp, z_am
 }
 
 function animate() {
-    // time management
-    /// scaling to seconds
-    const currentTime = Date.now() / 1000;
-    time = currentTime;
 
-    // animation: islands floating up and down in different intervals
-    floating(island1, 1, 1, time);
-    floating(island2, 1.5, 1, time);
-    floating(island3, 2.2, 2, time);
+    renderer.setAnimationLoop(function () {
+        // time management
+        /// scaling to seconds
+        const currentTime = Date.now() / 1000;
+        time = currentTime;
 
-    // animation: sun moving in the sky to create shadows on the objects
-    //sunCycle(directionalLight, 0.75, 45, time);
+        // animation: islands floating up and down in different intervals
+        floating(island1, 1, 1, time);
+        floating(island2, 1.5, 1, time);
+        floating(island3, 2.2, 2, time);
 
-    // toggle mode : toggle between flying around with the airship yourself and watching it fly in circles around the islands
-    document.addEventListener("keydown", onDocumentKeyDown, false);
-    function onDocumentKeyDown(event) {
-        var keyCode = event.which;
-        if (keyCode == 32) {
-            flightMode = !flightMode;
+        // animation: sun moving in the sky to create shadows on the objects
+        //sunCycle(directionalLight, 0.75, 45, time);
+
+        // toggle mode : toggle between flying around with the airship yourself and watching it fly in circles around the islands
+        document.addEventListener("keydown", onDocumentKeyDown, false);
+        function onDocumentKeyDown(event) {
+            var keyCode = event.which;
+            if (keyCode == 32) {
+                flightMode = !flightMode;
+            }
         }
-    }
-    if (flightMode) {
-        // flight-mode
-        fly(airship);
-    } else {
-        // loop animation
-        flyLoop(airship, new THREE.Vector3(-4.15, 1, 4.7), time, .5, 6, .5, 5);
-    }
+        if (flightMode) {
+            // flight-mode
+            fly(airship);
+        } else {
+            // loop animation
+            flyLoop(airship, new THREE.Vector3(-4.15, 1, 4.7), time, .5, 6, .5, 5);
+        }
 
-    // rendering
-    renderer.outputEncoding = THREE.sRGBEncoding;
-    renderer.shadowMap.enabled = true;
+        // rendering
+        renderer.outputEncoding = THREE.sRGBEncoding;
+        renderer.shadowMap.enabled = true;
+        renderer.render(scene, camera);
+    })
 }
-renderer.setAnimationLoop(function () {
-    renderer.render(scene, camera);
-})
 
 /*
 // listener to toggle visibility of the lights on keypress
