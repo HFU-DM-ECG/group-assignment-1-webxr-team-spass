@@ -9,6 +9,8 @@ const far_plane = 1000;
 
 // scene
 const scene = new THREE.Scene();
+scene.position.z = -3;
+scene.scale.divideScalar(3);
 const camera = new THREE.PerspectiveCamera(FOV, window.innerWidth / window.innerHeight, near_plane, far_plane);
 
 // time
@@ -44,10 +46,6 @@ renderer.xr.enabled = true;
 document.body.appendChild(dom);
 document.body.appendChild(ARButton.createButton(renderer));
 
-//camera positioning
-camera.position.z = 10;
-camera.position.y = 10;
-camera.position.x = 0;
 
 // object loading
 const island1 = new THREE.Object3D();
@@ -94,8 +92,6 @@ loader.load('models/airship.glb', function (gltf) {
     scene.add(airship);
     airship.scale.set(2, 2, 2);
     airship.rotateY(-1.49);
-    scene.position.z = -3;
-    scene.scale.divideScalar(2);
 }, undefined, function (error) {
     console.error(error);
 });
@@ -186,9 +182,10 @@ function animate() {
     // rendering
     renderer.outputEncoding = THREE.sRGBEncoding;
     renderer.shadowMap.enabled = true;
-    requestAnimationFrame(animate);
-    renderer.render(scene, camera);
 }
+renderer.setAnimationLoop( function () {
+    renderer.render(scene, camera);
+})
 
 /*
 // listener to toggle visibility of the lights on keypress
