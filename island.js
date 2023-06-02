@@ -14,7 +14,6 @@ const camera = new THREE.PerspectiveCamera(FOV, window.innerWidth / window.inner
 // time
 var time = Date.now() / 1000;
 
-
 // light
 /// light from the sky
 const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.6);
@@ -60,8 +59,7 @@ const loader = new GLTFLoader();
 var flightMode = false;
 
 // loading in the 3D models, saving them into usable variables and adding them to the scene.
-loader.load('models/insel.glb', function (gltf) { 
-    console.log(gltf.scene.children[0]);
+loader.load('models/insel.glb', function (gltf) {
     // its always children[0] because the child gets removed from gltf.scene once you add it to the actual scene
     island1.add(gltf.scene.children[0]); 
     island1.children[0].children[0].castShadow = true;
@@ -96,6 +94,8 @@ loader.load('models/airship.glb', function (gltf) {
     scene.add(airship);
     airship.scale.set(2, 2, 2);
     airship.rotateY(-1.49);
+    scene.position.z = -3;
+    scene.scale.divideScalar(2);
 }, undefined, function (error) {
     console.error(error);
 });
@@ -165,7 +165,7 @@ function animate() {
     floating(island3, 2.2, 2, time);
 
     // animation: sun moving in the sky to create shadows on the objects
-    sunCycle(directionalLight, 0.75, 45, time);
+    //sunCycle(directionalLight, 0.75, 45, time);
 
     // toggle mode : toggle between flying around with the airship yourself and watching it fly in circles around the islands
     document.addEventListener("keydown", onDocumentKeyDown, false);
@@ -190,6 +190,7 @@ function animate() {
     renderer.render(scene, camera);
 }
 
+/*
 // listener to toggle visibility of the lights on keypress
 document.addEventListener("keypress", (e) => {
     if (e.code == "KeyL") {
@@ -197,5 +198,6 @@ document.addEventListener("keypress", (e) => {
         hemiLightHelper.visible = !hemiLightHelper.visible;
     }
 });
+*/
 
 animate();
