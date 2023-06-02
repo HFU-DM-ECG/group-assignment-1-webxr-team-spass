@@ -13,7 +13,6 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(FOV, window.innerWidth / window.innerHeight, near_plane, far_plane);
 const collection = new THREE.Object3D();
 scene.add(collection);
-scene.background = new THREE.Color(0x222222);
 collection.position.z = -3;
 collection.scale.divideScalar(3);
 
@@ -43,7 +42,8 @@ directionalLightHelper.visible = false;
 scene.add(directionalLightHelper);
 
 // renderer
-const renderer = new THREE.WebGLRenderer();
+const renderer = new THREE.WebGLRenderer( { alpha: true } );
+renderer.setClearColor( 0x000000, 0 );
 renderer.setSize(window.innerWidth, window.innerHeight);
 var dom = renderer.domElement;
 renderer.xr.enabled = true;
