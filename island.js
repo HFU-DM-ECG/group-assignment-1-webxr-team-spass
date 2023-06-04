@@ -19,6 +19,14 @@ collection.scale.divideScalar(3);
 // time
 var time = Date.now() / 1000;
 
+// joystick
+let joystickManager;
+let forwardsValue = 0;
+let backwardsValue = 0;
+let rightValue = 0;
+let leftValue = 0;
+
+
 // light
 /// light from the sky
 const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.6);
@@ -164,6 +172,74 @@ function flyLoop(object, midPosition, currentTime, timescale, x_amp, y_amp, z_am
     }
 }
 
+function addJoystick() {
+    const options = {
+        zone: document.getElementById('joystickWrapper'),
+        size: 200,
+        multitouch: true,
+        maxNumberOfNipples: 2,
+        mode: 'static',
+        restJoystick: true,
+        shape: 'circle',
+        position: { top: '150px', left: '150px' },
+        dynamicPage: true, 
+    }
+    joystickManager = nipplejs.create(options);
+
+    joystickManager['0'].on('move', function (event, data) {
+        
+        // top of joystick should be 100, bottom should be -100, left -100, right 100
+        const forward = data.instance.frontPosition.y * -1;
+        const turn = data.instance.frontPosition.x
+        if (forward > 0) {
+          forwardsValue = Math.abs(forward) / 1000
+          backwardsValue = 0
+        } else if (forward < 0) {
+            forwardsValue = 0
+            backwardsValue = Math.abs(forward) / 1000
+        }
+
+        if (turn > 0) {
+          leftValue = 0
+          rightValue = Math.abs(turn) / 1000
+        } else if (turn < 0) {
+            leftValue = Math.abs(turn) / 1000
+          rightValue = 0
+        }
+    });
+
+    joystickManager['0'].on('end', function (event) {
+        backwardsValue = 0
+        forwardsValue = 0
+        leftValue = 0
+        rightValue = 0
+      })
+}
+
+function moveAirship() {
+    let tempVector = new THREE.Vector3();
+    let upVector = new THREE.Vector3(0, 1, 0);
+    // let newAngle = new THREE.Vector3();
+    // let angle = camera.getWorldDirection(newAngle);
+
+    if (forwardsValue > 0) {
+        tempVector.set(-forwardsValue, 0, 0);
+        // tempVector.applyAxisAngle(angle)
+        airship.position.addScaledVector(tempVector, 1);
+    }
+    if (backwardsValue > 0) {
+        tempVector.set(backwardsValue, 0, 0);
+        airship.position.addScaledVector(tempVector, 1);
+    }
+    if (leftValue > 0) {
+        airship.rotateY(leftValue);
+
+    }
+    if (rightValue > 0) {
+        airship.rotateY(leftValue);
+    }
+}
+
 function animate() {
 
     renderer.setAnimationLoop(function () {
@@ -193,7 +269,8 @@ function animate() {
             fly(airship);
         } else {
             // loop animation
-            flyLoop(airship, new THREE.Vector3(-4.15, 1, 4.7), time, .5, 6, .5, 5);
+            // flyLoop(airship, new THREE.Vector3(-4.15, 1, 4.7), time, .5, 6, .5, 5);
+            moveAirship();
         }
 
         // rendering
@@ -212,5 +289,5 @@ document.addEventListener("keypress", (e) => {
     }
 });
 */
-
+addJoystick();
 animate();

@@ -1,22 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ECG Excercise 2: Rendering Pipeline</title>
-    <style>
-      body {
-        margin: 0px;
-      }
-      canvas {
-          width: 100vw;
-          height: 100vh;
-      }
-    </style>
-    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
 
-    <script type="importmap">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ECG Excercise 2: Rendering Pipeline</title>
+  <style>
+    body {
+      margin: 0px;
+    }
+
+    canvas {
+      width: 100vw;
+      height: 100vh;
+    }
+
+    #joystickWrapper {
+      position: absolute;
+    }
+  </style>
+  <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+
+  <script type="importmap">
       {
         "imports": {
           "three": "https://unpkg.com/three@0.151.3/build/three.module.js",
@@ -24,8 +30,12 @@
         }
       }
     </script>
+  <script src="nipplejs.js"></script>
 </head>
+
 <body>
+  <div id="joystickWrapper"></div>
 </body>
-<script type="module"  src="island.js"></script>
+<script type="module" src="island.js"></script>
+
 </html>
