@@ -191,18 +191,18 @@ function moveAirship() {
     if (forwardsValue > 0) {
         tempVector.set(-forwardsValue, 0, 0);
         // tempVector.applyAxisAngle(angle)
-        airship.position.addScaledVector(tempVector, 1);
+        airship.position.addScaledVector(tempVector.applyQuaternion(airship.quaternion).applyAxisAngle(new THREE.Vector3(0,1,0),-90), 1);
     }
     if (backwardsValue > 0) {
         tempVector.set(backwardsValue, 0, 0);
-        airship.position.addScaledVector(tempVector, 1);
+        airship.position.addScaledVector(tempVector.applyQuaternion(airship.quaternion).applyAxisAngle(new THREE.Vector3(0,1,0),-90), 1);
     }
     if (leftValue > 0) {
         airship.rotateY(leftValue);
 
     }
     if (rightValue > 0) {
-        airship.rotateY(leftValue);
+        airship.rotateY(-rightValue);
     }
 }
 
