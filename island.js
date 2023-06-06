@@ -50,13 +50,13 @@ directionalLightHelper.visible = false;
 scene.add(directionalLightHelper);
 
 // renderer
-const renderer = new THREE.WebGLRenderer( { alpha: true } );
-renderer.setClearColor( 0x000000, 0 );
+const renderer = new THREE.WebGLRenderer({ alpha: true });
+renderer.setClearColor(0x000000, 0);
 renderer.setSize(window.innerWidth, window.innerHeight);
 var dom = renderer.domElement;
 renderer.xr.enabled = true;
-document.body.appendChild(dom);
 document.body.appendChild(ARButton.createButton(renderer));
+document.body.appendChild(dom);
 
 
 // object loading
@@ -66,57 +66,52 @@ const island3 = new THREE.Object3D();
 const airship = new THREE.Object3D();
 const loader = new GLTFLoader();
 
-var flightMode = false;
+//Orbit Controls
 let controls;
+controls = new OrbitControls(camera, dom);
+controls.target.set(0, 1.6, 0);
+controls.update();
 
-init();
+// loading in the 3D models, saving them into usable variables and adding them to the scene.
+loader.load('models/insel.glb', function (gltf) {
+    // its always children[0] because the child gets removed from gltf.scene once you add it to the actual scene
+    island1.add(gltf.scene.children[0]);
+    island1.children[0].children[0].castShadow = true;
+    island1.children[0].children[0].receiveShadow = true;
+    island1.name = "island1";
+    collection.add(island1);
 
-function init() {
+    island2.add(gltf.scene.children[0]);
+    island2.children[0].children[0].castShadow = true;
+    island2.children[0].children[0].receiveShadow = true;
+    island2.name = "island2";
+    collection.add(island2);
 
-    controls = new OrbitControls(camera, dom);
-    controls.target.set(0, 1.6, 0);
-    controls.update();
+    island3.add(gltf.scene.children[0]);
+    island3.children[0].children[0].castShadow = true;
+    island3.children[0].children[0].receiveShadow = true;
+    island3.name = "island3";
+    collection.add(island3);
+    island1.scale.set(3, 3, 3);
+    island2.scale.set(3, 3, 3);
+    island3.scale.set(3, 3, 3);
 
-    // loading in the 3D models, saving them into usable variables and adding them to the scene.
-    loader.load('models/insel.glb', function (gltf) {
-        // its always children[0] because the child gets removed from gltf.scene once you add it to the actual scene
-        island1.add(gltf.scene.children[0]);
-        island1.children[0].children[0].castShadow = true;
-        island1.children[0].children[0].receiveShadow = true;
-        island1.name = "island1";
-        collection.add(island1);
+}, undefined, function (error) {
+    console.error(error);
+});
 
-        island2.add(gltf.scene.children[0]);
-        island2.children[0].children[0].castShadow = true;
-        island2.children[0].children[0].receiveShadow = true;
-        island2.name = "island2";
-        collection.add(island2);
+loader.load('models/airship.glb', function (gltf) {
+    airship.add(gltf.scene.children[0]);
+    airship.name = "airship";
+    airship.children[0].children[0].castShadow = true;
+    airship.children[0].children[0].receiveShadow = true;
+    collection.add(airship);
+    airship.scale.set(2, 2, 2);
+    airship.rotateY(-1.49);
+}, undefined, function (error) {
+    console.error(error);
+});
 
-        island3.add(gltf.scene.children[0]);
-        island3.children[0].children[0].castShadow = true;
-        island3.children[0].children[0].receiveShadow = true;
-        island3.name = "island3";
-        collection.add(island3);
-        island1.scale.set(3, 3, 3);
-        island2.scale.set(3, 3, 3);
-        island3.scale.set(3, 3, 3);
-
-    }, undefined, function (error) {
-        console.error(error);
-    });
-
-    loader.load('models/airship.glb', function (gltf) {
-        airship.add(gltf.scene.children[0]);
-        airship.name = "airship";
-        airship.children[0].children[0].castShadow = true;
-        airship.children[0].children[0].receiveShadow = true;
-        collection.add(airship);
-        airship.scale.set(2, 2, 2);
-        airship.rotateY(-1.49);
-    }, undefined, function (error) {
-        console.error(error);
-    });
-}
 
 
 // object floating up and down
@@ -143,35 +138,6 @@ function sunCycle(object, floatingFrequency, amplitude, currentTime) {
     hemisphereLight.groundColor.setHSL(0.1, 1, hemisphereLightValue);
 }
 
-// flying around with an object tied to the camera
-function fly(object) {
-    // offset relative to camera
-    const offsetVector = new THREE.Vector3(-0.25, -1.3, -0.25);
-    offsetVector.applyQuaternion(camera.quaternion);
-    object.position.x = camera.position.x + offsetVector.x;
-    object.position.y = camera.position.y + offsetVector.y;
-    object.position.z = camera.position.z + offsetVector.z;
-    //object.quaternion.y = camera.quaternion.y;
-    object.setRotationFromQuaternion(camera.quaternion);
-}
-
-// objectswitching between flying in circles and staying at one position for equal times
-function flyLoop(object, midPosition, currentTime, timescale, x_amp, y_amp, z_amp) {
-    if (Math.sin(currentTime * timescale / 2) > 0) {
-        const oldPosition = new THREE.Vector3(object.position.x, object.position.y, object.position.z);
-
-        object.position.x = midPosition.x + Math.sin(currentTime * timescale) * x_amp;
-        object.position.y = midPosition.y + Math.cos(currentTime * timescale) * y_amp;
-        object.position.z = midPosition.z + Math.cos(currentTime * timescale) * z_amp - z_amp;
-
-        object.lookAt(oldPosition);
-    } else {
-        object.position.x = midPosition.x + Math.sin(0) * x_amp;
-        object.position.y = midPosition.y + Math.cos(0) * y_amp;
-        object.position.z = midPosition.z + Math.cos(0) * z_amp - z_amp;
-    }
-}
-
 function addJoystick() {
     const options = {
         zone: document.getElementById('joystickWrapper'),
@@ -182,29 +148,29 @@ function addJoystick() {
         restJoystick: true,
         shape: 'circle',
         position: { top: '150px', left: '150px' },
-        dynamicPage: true, 
+        dynamicPage: true,
     }
     joystickManager = nipplejs.create(options);
 
     joystickManager['0'].on('move', function (event, data) {
-        
+
         // top of joystick should be 100, bottom should be -100, left -100, right 100
         const forward = data.instance.frontPosition.y * -1;
         const turn = data.instance.frontPosition.x
         if (forward > 0) {
-          forwardsValue = Math.abs(forward) / 1000
-          backwardsValue = 0
+            forwardsValue = Math.abs(forward) / 1000
+            backwardsValue = 0
         } else if (forward < 0) {
             forwardsValue = 0
             backwardsValue = Math.abs(forward) / 1000
         }
 
         if (turn > 0) {
-          leftValue = 0
-          rightValue = Math.abs(turn) / 1000
+            leftValue = 0
+            rightValue = Math.abs(turn) / 1000
         } else if (turn < 0) {
             leftValue = Math.abs(turn) / 1000
-          rightValue = 0
+            rightValue = 0
         }
     });
 
@@ -213,7 +179,7 @@ function addJoystick() {
         forwardsValue = 0
         leftValue = 0
         rightValue = 0
-      })
+    })
 }
 
 function moveAirship() {
@@ -256,22 +222,7 @@ function animate() {
         // animation: sun moving in the sky to create shadows on the objects
         //sunCycle(directionalLight, 0.75, 45, time);
 
-        // toggle mode : toggle between flying around with the airship yourself and watching it fly in circles around the islands
-        document.addEventListener("keydown", onDocumentKeyDown, false);
-        function onDocumentKeyDown(event) {
-            var keyCode = event.which;
-            if (keyCode == 32) {
-                flightMode = !flightMode;
-            }
-        }
-        if (flightMode) {
-            // flight-mode
-            fly(airship);
-        } else {
-            // loop animation
-            // flyLoop(airship, new THREE.Vector3(-4.15, 1, 4.7), time, .5, 6, .5, 5);
-            moveAirship();
-        }
+        moveAirship();
 
         // rendering
         renderer.outputEncoding = THREE.sRGBEncoding;
@@ -280,7 +231,6 @@ function animate() {
     })
 }
 
-/*
 // listener to toggle visibility of the lights on keypress
 document.addEventListener("keypress", (e) => {
     if (e.code == "KeyL") {
@@ -288,6 +238,6 @@ document.addEventListener("keypress", (e) => {
         hemiLightHelper.visible = !hemiLightHelper.visible;
     }
 });
-*/
+
 addJoystick();
 animate();
