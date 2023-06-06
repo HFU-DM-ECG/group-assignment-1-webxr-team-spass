@@ -134,7 +134,7 @@ function addJoystick() {
 
     joystickManager['0'].on('move', function (event, data) {
 
-        // top of joystick should be the value 100, bottom should be -100, left -100, right 100
+        // top of joystick should be the y=100, bottom should be y=-100, left x=-100, right x=100
         const forward = data.instance.frontPosition.y * -1;
         const turn = data.instance.frontPosition.x
         if (forward > 0) {
