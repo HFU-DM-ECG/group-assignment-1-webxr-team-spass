@@ -56,8 +56,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 var dom = renderer.domElement;
 renderer.xr.enabled = true;
 document.body.appendChild(dom);
-document.body.appendChild(ARButton.createButton(renderer));
-
+document.body.appendChild( ARButton.createButton(renderer));
 
 // object loading
 const island1 = new THREE.Object3D();
@@ -289,5 +288,6 @@ document.addEventListener("keypress", (e) => {
     }
 });
 */
+
 addJoystick();
 animate();

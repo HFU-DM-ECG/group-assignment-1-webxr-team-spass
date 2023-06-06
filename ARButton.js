@@ -26,7 +26,8 @@ var ARButton = {
                 console.log('Button pressed');
                 if (currentSession === null) {
                     let sessionInit = {
-                            optionalFeatures: ["local-floor", "bounded-floor"]
+                            optionalFeatures: ["local-floor", "bounded-floor", "dom-overlay"],
+                            domOverlay: { root: document.getElementById("joystickWrapper")}
                         };
                     navigator.xr.requestSession('immersive-ar', sessionInit).then(onSessionStarted);
                 }
