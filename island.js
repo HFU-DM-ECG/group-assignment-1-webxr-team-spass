@@ -26,7 +26,6 @@ let backwardsValue = 0;
 let rightValue = 0;
 let leftValue = 0;
 
-
 // light
 /// light from the sky
 const hemisphereLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.6);
@@ -65,7 +64,7 @@ const island3 = new THREE.Object3D();
 const airship = new THREE.Object3D();
 const loader = new GLTFLoader();
 
-//Orbit Controls
+// orbit Controls
 let controls;
 controls = new OrbitControls(camera, dom);
 controls.target.set(0, 1.6, 0);
@@ -106,35 +105,17 @@ loader.load('models/airship.glb', function (gltf) {
     airship.children[0].children[0].receiveShadow = true;
     collection.add(airship);
     airship.scale.set(2, 2, 2);
+    airship.position.set(0, 2.8, 0);
     airship.rotateY(-1.49);
 }, undefined, function (error) {
     console.error(error);
 });
-
-
 
 // object floating up and down
 function floating(object, floatingFrequency, amplitude, currentTime) {
     const scalingFactor = 1 / 1000;
     var midPosition = object.position.y;
     object.position.y = midPosition + (Math.sin(currentTime * floatingFrequency) * scalingFactor * amplitude);
-}
-
-// sun cycling around the islands
-function sunCycle(object, floatingFrequency, amplitude, currentTime) {
-    // rotating the light around
-    const scalingFactor = 1 / 750;
-    var positionX = object.position.x;
-    var positionY = object.position.y;
-    var positionZ = object.position.z;
-    object.position.x = positionX + (Math.sin(currentTime * floatingFrequency) * scalingFactor * amplitude);
-    object.position.y = positionY + (Math.sin(currentTime * floatingFrequency) * scalingFactor * amplitude);
-    object.position.z = positionZ + (Math.cos(currentTime * floatingFrequency) * scalingFactor * amplitude);
-
-    // change light intensity based on sun position
-    var hemisphereLightValue = positionY * amplitude * scalingFactor;
-    hemisphereLight.color.setHSL(0.6, 1, hemisphereLightValue);
-    hemisphereLight.groundColor.setHSL(0.1, 1, hemisphereLightValue);
 }
 
 function addJoystick() {
@@ -153,7 +134,7 @@ function addJoystick() {
 
     joystickManager['0'].on('move', function (event, data) {
 
-        // top of joystick should be 100, bottom should be -100, left -100, right 100
+        // top of joystick should be the value 100, bottom should be -100, left -100, right 100
         const forward = data.instance.frontPosition.y * -1;
         const turn = data.instance.frontPosition.x
         if (forward > 0) {
@@ -183,13 +164,9 @@ function addJoystick() {
 
 function moveAirship() {
     let tempVector = new THREE.Vector3();
-    let upVector = new THREE.Vector3(0, 1, 0);
-    // let newAngle = new THREE.Vector3();
-    // let angle = camera.getWorldDirection(newAngle);
 
     if (forwardsValue > 0) {
         tempVector.set(-forwardsValue, 0, 0);
-        // tempVector.applyAxisAngle(angle)
         airship.position.addScaledVector(tempVector.applyQuaternion(airship.quaternion).applyAxisAngle(new THREE.Vector3(0,1,0),-90), 1);
     }
     if (backwardsValue > 0) {
@@ -198,7 +175,6 @@ function moveAirship() {
     }
     if (leftValue > 0) {
         airship.rotateY(leftValue);
-
     }
     if (rightValue > 0) {
         airship.rotateY(-rightValue);
@@ -206,7 +182,6 @@ function moveAirship() {
 }
 
 function animate() {
-
     renderer.setAnimationLoop(function () {
         // time management
         /// scaling to seconds
@@ -218,9 +193,6 @@ function animate() {
         floating(island2, 1.5, 1, time);
         floating(island3, 2.2, 2, time);
 
-        // animation: sun moving in the sky to create shadows on the objects
-        //sunCycle(directionalLight, 0.75, 45, time);
-
         moveAirship();
 
         // rendering
@@ -230,12 +202,5 @@ function animate() {
     })
 }
 
-// listener to toggle visibility of the lights on keypress
-document.addEventListener("keypress", (e) => {
-    if (e.code == "KeyL") {
-        directionalLightHelper.visible = !directionalLightHelper.visible;
-        hemiLightHelper.visible = !hemiLightHelper.visible;
-    }
-});
 addJoystick();
 animate();
