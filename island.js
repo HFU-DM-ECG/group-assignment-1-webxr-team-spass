@@ -135,7 +135,7 @@ function addJoystick() {
     joystickManager['0'].on('move', function (event, data) {
 
         // top of joystick should be the y=100, bottom should be y=-100, left x=-100, right x=100
-        const forward = data.instance.frontPosition.y * -1;
+        const forward = data.instance.frontPosition.y;
         const turn = data.instance.frontPosition.x
         if (forward > 0) {
             forwardsValue = Math.abs(forward) / 1000
@@ -166,11 +166,11 @@ function moveAirship() {
     let tempVector = new THREE.Vector3();
 
     if (forwardsValue > 0) {
-        tempVector.set(-forwardsValue, 0, 0);
+        tempVector.set(forwardsValue, 0, 0);
         airship.position.addScaledVector(tempVector.applyQuaternion(airship.quaternion).applyAxisAngle(new THREE.Vector3(0,1,0),-90), 1);
     }
     if (backwardsValue > 0) {
-        tempVector.set(backwardsValue, 0, 0);
+        tempVector.set(-backwardsValue, 0, 0);
         airship.position.addScaledVector(tempVector.applyQuaternion(airship.quaternion).applyAxisAngle(new THREE.Vector3(0,1,0),-90), 1);
     }
     if (leftValue > 0) {
